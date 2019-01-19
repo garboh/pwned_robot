@@ -227,38 +227,49 @@ def inline_query(bot, update):
             row = cur.fetchone()
             if row:
                 service = row[0]
+                breachedaccount =""
+                pasteaccount =""
+                checkpsw =""
                 if service == 0:
                     actualService = "breachedaccount"
+                    breachedaccount = "✅"
                 elif service == 1:
                     actualService = "pasteaccount"
+                    pasteaccount = "✅"
                 elif service == 2:
                     actualService = "checkpsw"
-                keyboardMarkup_services = InlineKeyboardMarkup([[InlineKeyboardButton("🔄 Change service", callback_data="settings_changeService")],[InlineKeyboardButton("🔙 Back", callback_data="settings")]]) 
+                    checkpsw = "✅"
+                keyboardMarkup_services = InlineKeyboardMarkup([[InlineKeyboardButton("{} breachedaccount".format(breachedaccount), callback_data="breachedaccount"),InlineKeyboardButton("{} pasteaccount".format(pasteaccount), callback_data="pasteaccount"),InlineKeyboardButton("{} checkpsw".format(checkpsw), callback_data="checkpsw")],[InlineKeyboardButton("🔙 Back", callback_data="settings")]]) 
                 bot.editMessageText(text="Here you can change the service: \n\n🔹 Choose \"breachedaccount\" service to return a list of all breaches of a particular account that has been involved in.\n🔹 Choose \"pasteaccount\" service to return all pastes for an account.\n🔹 Choose \"checkpsw\" service to return if your password has been compromised.\n\nActual service: <b>{}</b>".format(actualService), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_services)
-                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="✅") 
             else:
                 bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=True, text="An error has ocurred")
-        elif text == "settings_changeService":
-            cur.execute("SELECT `service` FROM `user` WHERE `chat_id`={}".format(chat_id))
-            row = cur.fetchone()
-            if row:
-                service = row[0]
-                if service == 0:
-                    cur.execute("UPDATE `user` SET `service`='1' WHERE `chat_id`={}".format(chat_id))
-                    actualService = "pasteaccount"
-                elif service == 1:
-                    cur.execute("UPDATE `user` SET `service`='2' WHERE `chat_id`={}".format(chat_id))
-                    actualService = "checkpsw"
-                elif service == 2:
-                    cur.execute("UPDATE `user` SET `service`='0' WHERE `chat_id`={}".format(chat_id))
-                    actualService = "breachedaccount"
-                    
-                keyboardMarkup_services = InlineKeyboardMarkup([[InlineKeyboardButton("🔄 Change service", callback_data="settings_changeService")],[InlineKeyboardButton("🔙 Back", callback_data="settings")]]) 
+        elif text == "breachedaccount":
+            try:
+                cur.execute("UPDATE `user` SET `service`='0' WHERE `chat_id`={}".format(chat_id))
+                actualService = "breachedaccount"
+                keyboardMarkup_services = InlineKeyboardMarkup([[InlineKeyboardButton("✅ breachedaccount", callback_data="breachedaccount"),InlineKeyboardButton("pasteaccount", callback_data="pasteaccount"),InlineKeyboardButton("checkpsw", callback_data="checkpsw")],[InlineKeyboardButton("🔙 Back", callback_data="settings")]]) 
                 bot.editMessageText(text="Here you can change the service: \n\n🔹 Choose \"breachedaccount\" service to return a list of all breaches of a particular account that has been involved in.\n🔹 Choose \"pasteaccount\" service to return all pastes for an account.\n🔹 Choose \"checkpsw\" service to return if your password has been compromised.\n\nActual service: <b>{}</b>".format(actualService), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_services)
-                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="✅")  
-            else:
-                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=True, text="An error has ocurred")            
-            
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="✅") 
+            except:
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="❌  already in use") 
+        elif text == "pasteaccount":
+            try:
+                cur.execute("UPDATE `user` SET `service`='1' WHERE `chat_id`={}".format(chat_id))
+                actualService = "pasteaccount"
+                keyboardMarkup_services = InlineKeyboardMarkup([[InlineKeyboardButton("breachedaccount", callback_data="breachedaccount"),InlineKeyboardButton("✅ pasteaccount", callback_data="pasteaccount"),InlineKeyboardButton("checkpsw", callback_data="checkpsw")],[InlineKeyboardButton("🔙 Back", callback_data="settings")]]) 
+                bot.editMessageText(text="Here you can change the service: \n\n🔹 Choose \"breachedaccount\" service to return a list of all breaches of a particular account that has been involved in.\n🔹 Choose \"pasteaccount\" service to return all pastes for an account.\n🔹 Choose \"checkpsw\" service to return if your password has been compromised.\n\nActual service: <b>{}</b>".format(actualService), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_services)
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="✅") 
+            except:
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="❌  already in use") 
+        elif text == "checkpsw":
+            try:
+                cur.execute("UPDATE `user` SET `service`='2' WHERE `chat_id`={}".format(chat_id))
+                actualService = "checkpsw"
+                keyboardMarkup_services = InlineKeyboardMarkup([[InlineKeyboardButton("breachedaccount", callback_data="breachedaccount"),InlineKeyboardButton("pasteaccount", callback_data="pasteaccount"),InlineKeyboardButton("✅ checkpsw", callback_data="checkpsw")],[InlineKeyboardButton("🔙 Back", callback_data="settings")]]) 
+                bot.editMessageText(text="Here you can change the service: \n\n🔹 Choose \"breachedaccount\" service to return a list of all breaches of a particular account that has been involved in.\n🔹 Choose \"pasteaccount\" service to return all pastes for an account.\n🔹 Choose \"checkpsw\" service to return if your password has been compromised.\n\nActual service: <b>{}</b>".format(actualService), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_services)
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="✅") 
+            except:
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="❌  already in use") 
         elif text == "back":
             bot.editMessageText(text="Here I am, at your service! 💪", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup)
         else:
