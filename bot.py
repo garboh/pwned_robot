@@ -162,12 +162,13 @@ def inline_query(bot, update):
         query = update.callback_query
         chat_id = query.message.chat_id
         text = query.data
-        keyboardMarkup_info = InlineKeyboardMarkup([[InlineKeyboardButton("📖 Developer", callback_data="info_dev"),InlineKeyboardButton("😇 Thanks to", callback_data="info_thanks")],[InlineKeyboardButton("🤖 Other bots", callback_data="info_bots")],[InlineKeyboardButton("💪 Donate", callback_data="info_donate"),InlineKeyboardButton("📬 Feedback", callback_data="info_feedback")],[InlineKeyboardButton("🔙 Back", callback_data="back")]])
+        keyboardMarkup_info = InlineKeyboardMarkup([[InlineKeyboardButton("📖 Developer", callback_data="info_dev"),InlineKeyboardButton("😇 Thanks to", callback_data="info_thanks")],[InlineKeyboardButton("🤖 Other bots", callback_data="info_bots")],[InlineKeyboardButton("💪 Donate", callback_data="info_donate"),InlineKeyboardButton("📬 Feedback", callback_data="info_feedback")],[InlineKeyboardButton("🔙 Back", callback_data="back_start")]])
         keyboardMarkup_infoback = InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="info_back")]])  
         keyboardMarkup_back = InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="back")]]) 
-        keyboardMarkup_settings = InlineKeyboardMarkup([[InlineKeyboardButton("👷‍♂️ Service", callback_data="settings_service"),InlineKeyboardButton("👀 Privacy", callback_data="settings_privacy")],[InlineKeyboardButton("🔙 Back", callback_data="back")]]) 
+        keyboardMarkup_backstart = InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="back_start")]]) 
+        keyboardMarkup_settings = InlineKeyboardMarkup([[InlineKeyboardButton("👷‍♂️ Service", callback_data="settings_service"),InlineKeyboardButton("👀 Privacy", callback_data="settings_privacy")],[InlineKeyboardButton("🔙 Back", callback_data="back_start")]]) 
         if text == "info":
-            bot.editMessageText(text="Hey there 😊\nHere you can find info about me, about those who have contributed to this project and about all my other bots.", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
+            bot.editMessageText(text="Hey there 😊\nHere you can find info about me, about those who have contributed to this project and about all my other bots.\n\nSource code: https://github.com/garboh/pwned_robot", chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
         elif text == "info_dev":
             bot.editMessageText(text="I'm 18 years old, I'm currently studying Information Techonlogy in Padua, in Italy. I've developed many Telegram bots and webApps. \n\nI developed this bot to check in a quickly and easily way if an account has been compromised in a data breach.", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
         elif text == "info_thanks":      
@@ -184,10 +185,8 @@ def inline_query(bot, update):
         elif text == "feedback_cancel":
             cur.execute("UPDATE `user` SET `status`='feedback_canceled' WHERE `chat_id`={}".format(chat_id)) 
             bot.editMessageText(text="Here I am, at your service! 💪", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
-        elif text == "info_back":
-            bot.editMessageText(text="Here I am, at your service! 💪", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
         elif text == "guide":
-            bot.editMessageText(text="{}".format(GUIDE_STR), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_back)
+            bot.editMessageText(text="{}".format(GUIDE_STR), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_backstart)
         elif text == "settings":
             bot.editMessageText(text="Here you can change the bot settings", chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_settings)
         elif text == "settings_privacy":
@@ -270,8 +269,10 @@ def inline_query(bot, update):
                 bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="✅") 
             except:
                 bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="❌  already in use") 
-        elif text == "back":
-            bot.editMessageText(text="Here I am, at your service! 💪", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup)
+        elif text == "info_back":
+            bot.editMessageText(text="Hey there 😊\nHere you can find info about me, about those who have contributed to this project and about all my other bots.\n\nSource code: https://github.com/garboh/pwned_robot", chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
+        elif text == "back_start":
+            bot.editMessageText(text="Welcome back {}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\n\nhttps://haveibeenpwned.com".format(update.callback_query.from_user.first_name), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup)
         else:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=True, text="bot is under construction")
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False)  
