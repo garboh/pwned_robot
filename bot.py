@@ -271,7 +271,7 @@ def inline_query(bot, update):
                 bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="❌  already in use") 
         elif text == "info_back":
             bot.editMessageText(text="Hey there 😊\nHere you can find info about me, about those who have contributed to this project and about all my other bots.\n\nSource code: https://github.com/garboh/pwned_robot", chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
-        elif text == "back_start":
+        elif text == "back_start" or text == "back":
             bot.editMessageText(text="Welcome back {}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\n\nhttps://haveibeenpwned.com".format(update.callback_query.from_user.first_name), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup)
         else:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=True, text="bot is under construction")
