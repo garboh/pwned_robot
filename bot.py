@@ -17,8 +17,7 @@ from telegram.ext import *
 from telegram.ext.dispatcher import run_async
 
 keyboardMarkup = InlineKeyboardMarkup([[InlineKeyboardButton("📖 Guide", callback_data="guide"),InlineKeyboardButton("ℹ️ Various info", callback_data="info")],[InlineKeyboardButton("⚙️ Settings", callback_data="settings")]])
-GUIDE_STR = "<b>How to use?</b>\n\n1️⃣ To find out if an account has been breached use the \"<b>breachedaccount</b>\" service in the settings and then send the email address of that account.\n2️⃣ To know if there is a 'paste' file you have to go in the settings and change the service in \"<b>pasteaccount</b>\" and then send the email address of that account\n3️⃣ You can also check if a password has been compromised, in this case change the service to \"<b>checkpsw</b>\"\n\nOther services will be supported ASAP."
-
+GUIDE_STR = "<b>How to use?</b>\nTo change the service just go to the Settings — services — <i>select the service you want to check</i>\n\n1️⃣ <b>checkpsw</b>: With this service you can check if your password has been compromised. This service is activated by default. Once activate just send a password. \n2️⃣ To find out if an account has been breached use the \"<b>breachedaccount</b>\" service and then send the email address of that account. [Premium account required]\n3️⃣ To know if there is a 'paste' file you have to go in the settings and change the service in \"<b>pasteaccount</b>\" and then send the email address of that account. [Premium account required]\n\nOther services will be supported ASAP."
 def error(bot, update, error):
     try:
         bot.sendMessage(update.message.chat.id, text = '❗️ Update "%s" caused error "%s"\n\n➡Ask to bot developer⬅️' % (update, error))
@@ -64,7 +63,7 @@ def init(bot, update):
                     bot.sendMessage(update.message.chat_id, text="❌ Feedback canceled")
                     cur.execute("UPDATE `user` SET `status`='feedback_canceled' WHERE `chat_id`={}".format(chat_id))
                 else:
-                    bot.forwardMessage(chat_id=<your ID>, from_chat_id=update.message.chat_id, message_id=update.message.message_id)
+                    bot.forwardMessage(chat_id=67292456, from_chat_id=update.message.chat_id, message_id=update.message.message_id)
                     bot.sendMessage(update.message.chat_id, text="✅ Thanks for your feedback 👍 It was forwarded to developers.")
                     cur.execute("UPDATE `user` SET `status`='feedback_sent' WHERE `chat_id`={}".format(chat_id))
                 return False
@@ -116,27 +115,32 @@ def text(bot, update):
                     bot.sendMessage(update.message.chat_id, text="<b>Oh no — pwned!</b>\n\nThis password has been seen {} times before.\nThis password has previously appeared in a data breach and should never be used. If you've ever used it anywhere before, change it! ".format(count),parse_mode=ParseMode.HTML)
                 normal = False
             if normal:
-                headers = {'User-Agent': 'Pwnage-Checker-For-Telegram', 'api-version': '2', 'Accept': 'application/vnd.haveibeenpwned.v2+json'}
-                url = "https://haveibeenpwned.com/api/v2/{}/{}".format(actualService, urllib.parse.quote_plus(update.message.text))
-                r = requests.get(url, headers=headers, verify=True)
-                
-                if r.status_code == 200:
-                    json_object = json.loads(r.content)
-                    stringAnsw = ""
-                    if service == 1:
-                        for rows in json_object:
-                            stringAnsw += "\n\n📌 Source: {}\n🆔 ID: {}\n🔤 Title: {}\n📅 Date: {}\n👁‍🗨  EmailCount: {}".format(rows["Source"], rows["Id"], rows["Title"],rows["Date"], rows["EmailCount"])
-                        bot.sendMessage(update.message.chat_id, text="{}".format(str(stringAnsw)))
-                    elif service ==0:
-                        bot.sendMessage(update.message.chat_id, text="{}".format(str(json.loads(r.content))))
-                elif r.status_code == 400:
-                   bot.sendMessage(update.message.chat_id, text="Bad request — the account does not comply with an acceptable format (i.e. it's an empty string) ")
-                elif r.status_code == 403:
-                   bot.sendMessage(update.message.chat_id, text="Forbidden — no user agent has been specified in the request")
-                elif r.status_code == 404:
-                   bot.sendMessage(update.message.chat_id, text="Not found — the account could not be found and has therefore not been pwned")
-                elif r.status_code == 429:
-                   bot.sendMessage(update.message.chat_id, text="Too many requests — the rate limit has been exceeded")
+                cur.execute("SELECT * FROM user WHERE `chat_id`={}".format(chat_id))
+                row = cur.fetchone()
+                if row[7]:
+                    customheaders = {'User-Agent': 'Pwnage-Checker-For-Telegram', 'api-version': '3', 'Accept': 'application/vnd.haveibeenpwned.v3+json'}
+                    url = "https://haveibeenpwned.com/api/v3/{}/{}".format(actualService, urllib.parse.quote_plus(update.message.text))
+                    r = requests.get(url, headers=customheaders, verify=False)
+                    
+                    if r.status_code == 200:
+                        json_object = json.loads(r.content)
+                        stringAnsw = ""
+                        if service == 1:
+                            for rows in json_object:
+                                stringAnsw += "\n\n📌 Source: {}\n🆔 ID: {}\n🔤 Title: {}\n📅 Date: {}\n👁‍🗨  EmailCount: {}".format(rows["Source"], rows["Id"], rows["Title"],rows["Date"], rows["EmailCount"])
+                            bot.sendMessage(update.message.chat_id, text="{}".format(str(stringAnsw)))
+                        elif service ==0:
+                            bot.sendMessage(update.message.chat_id, text="{}".format(str(json.loads(r.content))))
+                    elif r.status_code == 400:
+                       bot.sendMessage(update.message.chat_id, text="Bad request — the account does not comply with an acceptable format (i.e. it's an empty string) ")
+                    elif r.status_code == 403:
+                       bot.sendMessage(update.message.chat_id, text="Forbidden — no user agent has been specified in the request")
+                    elif r.status_code == 404:
+                       bot.sendMessage(update.message.chat_id, text="Not found — the account could not be found and has therefore not been pwned")
+                    elif r.status_code == 429:
+                       bot.sendMessage(update.message.chat_id, text="Too many requests — the rate limit has been exceeded")
+                else:
+                    bot.sendMessage(update.message.chat_id, text="You must have a premium account to use this service. Contact the staff at @hackandnews_staff")
     end()
     
 def safepass(passwd):
@@ -170,11 +174,11 @@ def inline_query(bot, update):
         if text == "info":
             bot.editMessageText(text="Hey there 😊\nHere you can find info about me, about those who have contributed to this project and about all my other bots.\n\nSource code: https://github.com/garboh/pwned_robot", chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
         elif text == "info_dev":
-            bot.editMessageText(text="I'm 18 years old, I'm currently studying Information Techonlogy in Padua, in Italy. I've developed many Telegram bots and webApps. \n\nI developed this bot to check in a quickly and easily way if an account has been compromised in a data breach.", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
+            bot.editMessageText(text="I'm 19 years old, I'm currently studying Information Techonlogy in Padua, in Italy. I've developed many Telegram bots and webApps. \n\nI developed this bot to check in a quickly and easily way if an account has been compromised in a data breach.", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
         elif text == "info_thanks":      
             bot.editMessageText(text="Special thanks to haveibeenpwned.com \n\nTranslators:\nworking on it", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
         elif text == "info_bots":           
-            bot.editMessageText(text="I've developed some other bots, useful and funny:\n🔹 @megachatbot Chat with people with the same preferences or with strangers randomly chosen! \n🔹 @CiuchinoCalls call it to listen awesome music \n🔹 @CiuchinoBot Have fun with jokes and insults. Many functions for private chat, groups and supergroups.", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
+            bot.editMessageText(text="I've developed some other bots, useful and funny:\n🔹 @CiuchinoCalls call it on Telegram voicecall to listen awesome music \n🔹 @megachatbot Chat with people with the same preferences or with strangers randomly chosen! \n🔹 @CiuchinoBot Have fun with jokes and insults. Many functions for private chat, groups and supergroups.", chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
         elif text == "info_donate":
             bot.editMessageText(text="Support the project by donating a coffee\n\n🅿️ paypal.me/garboh", chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
         elif text == "info_feedback":
@@ -271,7 +275,7 @@ def inline_query(bot, update):
                 bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False, text="❌  already in use") 
         elif text == "info_back":
             bot.editMessageText(text="Hey there 😊\nHere you can find info about me, about those who have contributed to this project and about all my other bots.\n\nSource code: https://github.com/garboh/pwned_robot", chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
-        elif text == "back_start" or text == "back":
+        elif text == "back_start" or text == "back"  :
             bot.editMessageText(text="Welcome back {}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\n\nhttps://haveibeenpwned.com".format(update.callback_query.from_user.first_name), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup)
         else:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=True, text="bot is under construction")
@@ -290,7 +294,7 @@ def main():
     print("pwned start!")
     
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater("your token here")
+    updater = Updater("your bot's token")
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
