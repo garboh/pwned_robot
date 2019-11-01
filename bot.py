@@ -29,7 +29,7 @@ def init(bot, update):
     global db
     global cur
 
-    db = MySQLdb.connect(host="",      # your host, usually localhost
+    db = MySQLdb.connect(host="localhost",      # your host, usually localhost
                          user="",           # your username
                          passwd="#",  # your password
                          db="",            # name of the data base
@@ -118,7 +118,7 @@ def text(bot, update):
                 cur.execute("SELECT * FROM user WHERE `chat_id`={}".format(chat_id))
                 row = cur.fetchone()
                 if row[7]:
-                    customheaders = {'User-Agent': 'Pwnage-Checker-For-Telegram', 'api-version': '3', 'Accept': 'application/vnd.haveibeenpwned.v3+json'}
+                    customheaders = {'User-Agent': 'Pwnage-Checker-For-Telegram', 'api-version': '3', 'Accept': 'application/vnd.haveibeenpwned.v3+json', 'hibp-api-key': 'your hibp api key'} 
                     url = "https://haveibeenpwned.com/api/v3/{}/{}".format(actualService, urllib.parse.quote_plus(update.message.text))
                     r = requests.get(url, headers=customheaders, verify=False)
                     
@@ -140,8 +140,50 @@ def text(bot, update):
                     elif r.status_code == 429:
                        bot.sendMessage(update.message.chat_id, text="Too many requests — the rate limit has been exceeded")
                 else:
-                    bot.sendMessage(update.message.chat_id, text="You must have a premium account to use this service. Contact the staff at @hackandnews_staff")
+                    bot.sendMessage(update.message.chat_id, text="You must have a premium account to use this service. Write /premium")
     end()
+    
+def sendPremiumInvoice(bot, update):
+    if update.message.chat.type == "private":
+        if init(bot, update):
+            cur.execute("SELECT * FROM `user` WHERE `chat_id`={}".format(update.message.chat_id))
+            row = cur.fetchone()
+            if row[7]:
+                bot.sendMessage(update.message.chat_id, text="You are already a Premium user")
+            else:
+                try:
+                    chat_id = update.message.chat_id
+                    title = "Premium Pass"
+                    description = "Unblock all features at @pwned_robot on Telegram"
+                    payload = "payload-test"
+                    provider_token = "" #your provider token, go to @botfather 
+                    start_parameter = "premium"                    
+                    currency = "EUR"
+                    denaro = 4.50 #premium price
+                    price = float(denaro)
+                    prices = [LabeledPrice("Pwned Premium Pass", int(price * 100))]
+                    photo = "https://ciuchinobot.me/img/pwned.png"
+                    bot.sendInvoice(chat_id, title, description, payload, provider_token, start_parameter, currency, prices, photo_url=photo)
+                except Exception as e:
+                    bot.sendMessage(update.message.chat_id, text="Si è verificato un errore")
+            end()
+    else:
+        bot.sendMessage(update.message.chat_id, text="PM me with /premium command 😜")
+                
+def precheckout_callback(bot, update):
+    query = update.pre_checkout_query
+    # check the payload, is this from your bot?
+    if query.invoice_payload != "payload-test":
+        # answer False pre_checkout_query
+        bot.answer_pre_checkout_query(pre_checkout_query_id=query.id, ok=False, error_message="Something went wrong...")
+    else:
+        bot.answer_pre_checkout_query(pre_checkout_query_id=query.id, ok=True)
+        
+def successful_payment_callback(bot, update):
+    if init(bot, update):
+        cur.execute("UPDATE `user` SET premium=1 WHERE `chat_id`={}".format(update.message.chat_id))
+        bot.sendMessage(update.message.chat_id, text="Thank you for supporting the project!")
+        end()
     
 def safepass(passwd):
     passwd = passwd.encode()
@@ -294,7 +336,7 @@ def main():
     print("pwned start!")
     
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater("your bot's token")
+    updater = Updater("your bot's token here")
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -304,6 +346,7 @@ def main():
     dp.add_handler(CommandHandler("help", guide))
     dp.add_handler(CommandHandler("donate", donate))
     dp.add_handler(CommandHandler("cancel", cancel))
+    dp.add_handler(CommandHandler("premium", sendPremiumInvoice))
     
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(CallbackQueryHandler(inline_query))
