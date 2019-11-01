@@ -9,3 +9,4 @@ With [@pwned_robot](https://t.me/pwned_robot) you can check if you have an accou
 To run the bot yourself, you will need:
 - Python (tested with 3.6+)
 - The [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) module
+- MySql
