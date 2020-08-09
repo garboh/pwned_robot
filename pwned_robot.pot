@@ -1,0 +1,263 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-09 16:37+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4\n"
+
+#: pwned.py:36 pwned.py:140 pwned.py:146 pwned.py:219 pwned.py:280 pwned.py:322
+#: pwned.py:323 pwned.py:324 pwned.py:325 pwned.py:506 pwned.py:555
+msgid "🔙 Back"
+msgstr ""
+
+#: pwned.py:37
+msgid ""
+"❌ An error has occurred. Try later.\n"
+"\n"
+"The developers have just been notified. If the problem persists do not "
+"hesitate to use the feedback form, thanks. 📬"
+msgstr ""
+
+#: pwned.py:88 pwned.py:134 pwned.py:433
+msgid "📖 Guide"
+msgstr ""
+
+#: pwned.py:88 pwned.py:134 pwned.py:433
+msgid "ℹ️ Various info"
+msgstr ""
+
+#: pwned.py:88 pwned.py:134 pwned.py:433
+msgid "⚙️ Settings"
+msgstr ""
+
+#: pwned.py:89
+#, python-brace-format
+msgid ""
+"Welcome {userName}! \n"
+"With this Bot you can <b>check if you have an account that has been "
+"compromised in a data breach</b>.\n"
+"https://haveibeenpwned.com\n"
+"\n"
+"{strServiceEnabled}"
+msgstr ""
+
+#: pwned.py:98
+msgid ""
+"You've been banned, you can not use this bot anymore. To check if your "
+"account/password has been compromised, go to https://haveibeenpwned.com"
+msgstr ""
+
+#: pwned.py:103
+msgid "❌ Feedback canceled"
+msgstr ""
+
+#: pwned.py:107
+msgid "✅ Thanks for your feedback 👍 It was forwarded to developers."
+msgstr ""
+
+#: pwned.py:117
+msgid "No action to cancel"
+msgstr ""
+
+#: pwned.py:123
+msgid ""
+"breachedaccount is enabled, write your email to check if you have an account "
+"that has been compromised"
+msgstr ""
+
+#: pwned.py:128
+msgid ""
+"checkpsw is enabled, write your password to check if this password has been "
+"compromised"
+msgstr ""
+
+#: pwned.py:135 pwned.py:434
+#, python-brace-format
+msgid ""
+"Welcome back {userName}! \n"
+"With this Bot you can <b>check if you have an account that has been "
+"compromised in a data breach</b>.\n"
+"https://haveibeenpwned.com\n"
+"\n"
+"{strServiceEnabled}"
+msgstr ""
+
+#: pwned.py:141 pwned.py:336
+msgid ""
+"Support the project by donating a coffee\n"
+"\n"
+"🅿️ paypal.me/garboh"
+msgstr ""
+
+#: pwned.py:147 pwned.py:345
+msgid ""
+"<b>What have i been pwned is?</b>\n"
+"Have i been pwned is a website that allows Internet users to check whether "
+"their personal data has been compromised by data breaches.\n"
+"\n"
+"<b>What @pwned_robot is?</b>\n"
+"@pwned_robot use Have i been pwned API to use this service on Telegram. Yep "
+"is a forked!\n"
+"\n"
+"<b>How to use?</b>\n"
+"Is simply to use. There are 3 services available to check your accounts or "
+"passwords.\n"
+"To change one service you just go to the bot settings from a menu button — "
+"then tap on services — <i>select the service you want to check</i>\n"
+"\n"
+"Other services will be supported ASAP."
+msgstr ""
+
+#: pwned.py:174
+msgid ""
+"<b>Good news — no pwnage found!</b>\n"
+"\n"
+"This password wasn't found in any of the Pwned Passwords loaded into Have I "
+"Been Pwned. That doesn't necessarily mean it's a good password, merely that "
+"it's not indexed on this site."
+msgstr ""
+
+#: pwned.py:176
+msgid ""
+"<b>Oh no — pwned!</b>\n"
+"\n"
+"This password has been seen {} times before.\n"
+"This password has previously appeared in a data breach and should never be "
+"used. If you've ever used it anywhere before, change it!"
+msgstr ""
+
+#: pwned.py:219 pwned.py:280 pwned.py:326 pwned.py:506 pwned.py:555
+msgid "👷‍♂️ Service"
+msgstr ""
+
+#: pwned.py:285
+msgid ""
+"Bad request — the account does not comply with an acceptable format (i.e. "
+"it's an empty string) "
+msgstr ""
+
+#: pwned.py:287
+msgid "Forbidden — no user agent has been specified in the request"
+msgstr ""
+
+#: pwned.py:289
+msgid ""
+"Not found — the account could not be found and has therefore not been pwned"
+msgstr ""
+
+#: pwned.py:291
+msgid "Too many requests — the rate limit has been exceeded"
+msgstr ""
+
+#: pwned.py:322
+msgid "📖 Developer"
+msgstr ""
+
+#: pwned.py:322
+msgid "😇 Thanks to"
+msgstr ""
+
+#: pwned.py:322
+msgid "🤖 Other bots"
+msgstr ""
+
+#: pwned.py:322
+msgid "💪 Donate"
+msgstr ""
+
+#: pwned.py:322
+msgid "📬 Feedback"
+msgstr ""
+
+#: pwned.py:328 pwned.py:430
+msgid ""
+"Hey there 😊\n"
+"Here you can find info about me, about those who have contributed to this "
+"project and about all my other bots.\n"
+"\n"
+"This Bot is completely free and Open Source: https://github.com/garboh/"
+"pwned_robot"
+msgstr ""
+
+#: pwned.py:330
+msgid ""
+"I'm 20 years old, I'm currently studying IT Engineer at <a href='https://en."
+"wikipedia.org/wiki/University_of_Padua'>UniPD</a>, in Italy. I've developed "
+"many Telegram bots and webApps. \n"
+"\n"
+"I developed this bot to check in a quickly and easily way if an account has "
+"been compromised in a data breach."
+msgstr ""
+
+#: pwned.py:332
+msgid ""
+"Special thanks to haveibeenpwned.com \n"
+"\n"
+"You can help us to transale this bot on <a href='https://www.transifex.com/"
+"hack-and-news/have-i-been-pwned'>Transifex</a>"
+msgstr ""
+
+#: pwned.py:334
+msgid ""
+"I've developed some other bots, useful and funny:\n"
+"🔹 @CiuchinoCalls call it on Telegram voicecall to listen awesome music. \n"
+"🔹 @langTLA_bot change the entire Telegram interface into one of the official "
+"or minority languages available. \n"
+"🔹 @CiuchinoBot Have fun with a stupid AI. Many functions for private chat, "
+"groups and supergroups."
+msgstr ""
+
+#: pwned.py:339
+msgid "Tell what we can improve to make this bot better or /cancel"
+msgstr ""
+
+#: pwned.py:343
+msgid "Here I am, at your service! 💪"
+msgstr ""
+
+#: pwned.py:348
+msgid "Here you can change the bot settings"
+msgstr ""
+
+#: pwned.py:361 pwned.py:378
+msgid ""
+"Here you can change the bot privacy:\n"
+"Recive notifications about future updates\n"
+"\n"
+"Notifications: <b>{}</b>"
+msgstr ""
+
+#: pwned.py:399 pwned.py:407 pwned.py:416 pwned.py:425
+#, python-brace-format
+msgid ""
+"Here you can change the Bot service, by default breachedaccount is enabled.\n"
+"\n"
+"🟠 Choose \"breachedaccount\" service to return a <b>list of all breaches</b> "
+"of a particular account that has been involved in. So just send your email "
+"to check if you have an account that has been compromised in a data breach.\n"
+"\n"
+"🟣 Choose \"pasteaccount\" service to return <b>all pastes</b> for an "
+"account.  Write your email and verify.\n"
+"\n"
+"🔵 Choose \"checkpsw\" service to return if your password has been "
+"compromised. So write your <b>password</b> to check if has been seen "
+"somewhere.\n"
+"\n"
+"Actual service: <b>{actualService}</b>"
+msgstr ""
+
+#: pwned.py:126
+msgid "pasteaccount is enabled, write your email to see all paste found"
+msgstr ""
