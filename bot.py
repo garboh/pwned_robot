@@ -12,6 +12,8 @@ import time
 import requests
 from httpcache import CachingHTTPAdapter
 import json
+import os
+import glob
 import certifi
 import urllib3
 from urllib.request import Request, urlopen
@@ -20,6 +22,8 @@ from telegram.ext import *
 from telegram.ext.dispatcher import run_async
 import gettext
 from gettext import ngettext
+import datetime
+from datetime import timedelta
 
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
@@ -49,7 +53,7 @@ def openDb():
 
     db = MySQLdb.connect(host="",      # your host, usually localhost
                          user="",           # your username
-                         passwd="",  # your password
+                         passwd="#",  # your password
                          db="",         # name of the data base
                          charset='utf8mb4',
                          use_unicode=True)
@@ -84,10 +88,10 @@ def init(bot, update):
     cur.execute("SELECT * FROM user WHERE `chat_id`={}".format(chat_id))
     row = cur.fetchone()
     if not row:
-        strServiceEnabled = getStrService(bot, update)
+        strServiceEnabled = getStrService(chat_id)
         keyboardMarkup = InlineKeyboardMarkup([[InlineKeyboardButton(_("📖 Guide"), callback_data="guide"),InlineKeyboardButton(_("ℹ️ Various info"), callback_data="info")],[InlineKeyboardButton(_("⚙️ Settings"), callback_data="settings")]])
-        bot.sendMessage(update.message.chat_id, text=_("Welcome {userName}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\nhttps://haveibeenpwned.com\n\n{strServiceEnabled}").format(userName=update.message.from_user.first_name,strServiceEnabled=strServiceEnabled), reply_markup=keyboardMarkup, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
-        cur.execute("INSERT INTO `user`(`chat_id`, `date_time`) VALUES ({},now())".format(chat_id))
+        bot.sendMessage(update.message.chat_id, text=_("Welcome {userName}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\nhttps://haveibeenpwned.com\n\n{strServiceEnabled}\n👷‍♂️ You can change the service on the settings").format(userName=update.message.from_user.first_name,strServiceEnabled=strServiceEnabled), reply_markup=keyboardMarkup, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+        cur.execute("INSERT INTO `user`(`chat_id`,`lang`,`date_time`) VALUES ({},'{}',now())".format(chat_id, update.message.from_user.language_code))
         langBot = getBotLang(chat_id)
         setBotLang(langBot, chat_id)
         return False
@@ -120,25 +124,25 @@ def cancel(bot, update):
 def getStrService(chatId):
     cur.execute("SELECT service FROM user WHERE `chat_id`={}".format(chatId))
     row = cur.fetchone()
-    strServiceEnabled = _("breachedaccount is enabled, write your email to check if you have an account that has been compromised")
+    strServiceEnabled = _("<b>Breachedaccount</b> is enabled, write your email to check if you have an account that has been compromised")
     if row:
         if row[0]==1:
-            strServiceEnabled = _("pasteaccount is enabled, write your email to see all paste found")
+            strServiceEnabled = _("<b>Pasteaccount</b> is enabled, write your email to see all paste found")
         if row[0]==2:
-            strServiceEnabled = _("checkpsw is enabled, write your password to check if this password has been compromised")
+            strServiceEnabled = _("<b>CheckPSW</b> is enabled, write your password to check if this password has been compromised")
     return strServiceEnabled
     
 def start(bot, update):
     if init(bot, update):
         strServiceEnabled = getStrService(update.message.chat_id)
         keyboardMarkup = InlineKeyboardMarkup([[InlineKeyboardButton(_("📖 Guide"), callback_data="guide"),InlineKeyboardButton(_("ℹ️ Various info"), callback_data="info")],[InlineKeyboardButton(_("⚙️ Settings"), callback_data="settings")]])
-        bot.sendMessage(update.message.chat_id, text=_("Welcome back {userName}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\nhttps://haveibeenpwned.com\n\n{strServiceEnabled}").format(userName=update.message.from_user.first_name, strServiceEnabled=strServiceEnabled), reply_markup=keyboardMarkup, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+        bot.sendMessage(update.message.chat_id, text=_("Welcome back {userName}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\nhttps://haveibeenpwned.com\n\n{strServiceEnabled}\n👷‍♂️ You can change the service on the settings").format(userName=update.message.from_user.first_name, strServiceEnabled=strServiceEnabled), reply_markup=keyboardMarkup, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     end()
     
 def donate(bot, update):
     if init(bot, update):
         keyboardMarkup_back = InlineKeyboardMarkup([[InlineKeyboardButton(_("🔙 Back"), callback_data="back")]]) 
-        bot.sendMessage(update.message.chat_id, text=_("Support the project by donating a coffee\n\n🅿️ paypal.me/garboh"), reply_markup=keyboardMarkup_back, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+        bot.sendMessage(update.message.chat_id, text=_("Support this project by donating a coffee\n\n🅿️ Paypal: paypal.me/garboh\n💰 Bitcoin address: <code>37opAEEXUVmH8N3y1qKKEnmVviS6nBwa56</code>"), reply_markup=keyboardMarkup_back, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     end()
     
 def guide(bot, update):
@@ -186,7 +190,7 @@ def checkPwned(bot, update, chat_id, msg, offset):
                     json_query = json.dumps(json_object)
                     with open('./cache/{}/{}.json'.format(cache,chat_id), 'w', encoding='utf-8') as f:
                         json.dump(json_object, f, ensure_ascii=False, indent=4)
-                    #cur.execute("UPDATE `user` SET `json`='{}' WHERE `chat_id`={}".format(json_query, chat_id))
+  
                     stringAnsw = ""
                     if service == 1:
                         countRow = 0
@@ -319,21 +323,20 @@ def inline_query(bot, update):
         query = update.callback_query
         chat_id = query.message.chat_id
         text = query.data
-        keyboardMarkup_info = InlineKeyboardMarkup([[InlineKeyboardButton(_("📖 Developer"), callback_data="info_dev"),InlineKeyboardButton(_("😇 Thanks to"), callback_data="info_thanks")],[InlineKeyboardButton(_("🤖 Other bots"), callback_data="info_bots")],[InlineKeyboardButton(_("💪 Donate"), callback_data="info_donate"),InlineKeyboardButton(_("📬 Feedback"), callback_data="info_feedback")],[InlineKeyboardButton(_("🔙 Back"), callback_data="back_start")]])
+        keyboardMarkup_info = InlineKeyboardMarkup([[InlineKeyboardButton(_("🛠 SourceCode"), url="https://github.com/garboh/pwned_robot"),InlineKeyboardButton(_("😇 Thanks to"), callback_data="info_thanks")],[InlineKeyboardButton(_("💪 Donate"), callback_data="info_donate"),InlineKeyboardButton(_("📬 Feedback"), callback_data="info_feedback")],[InlineKeyboardButton(_("🔙 Back"), callback_data="back_start")]])
         keyboardMarkup_infoback = InlineKeyboardMarkup([[InlineKeyboardButton(_("🔙 Back"), callback_data="info_back")]])  
         keyboardMarkup_back = InlineKeyboardMarkup([[InlineKeyboardButton(_("🔙 Back"), callback_data="back")]]) 
         keyboardMarkup_backstart = InlineKeyboardMarkup([[InlineKeyboardButton(_("🔙 Back"), callback_data="back_start")]]) 
-        keyboardMarkup_settings = InlineKeyboardMarkup([[InlineKeyboardButton(_("👷‍♂️ Service"), callback_data="settings_service"),InlineKeyboardButton("👀 Privacy", callback_data="settings_privacy")],[InlineKeyboardButton("🔙 Back", callback_data="back_start")]]) 
+        keyboardMarkup_settings = InlineKeyboardMarkup([[InlineKeyboardButton(_("👷‍♂️ Service"), callback_data="settings_service"),InlineKeyboardButton("👀 Privacy", callback_data="settings_privacy")],[InlineKeyboardButton("🗣 Bot language", callback_data="botlang")],[InlineKeyboardButton("🔙 Back", callback_data="back_start")]]) 
         if text == "info":
             bot.editMessageText(text=_("Hey there 😊\nHere you can find info about me, about those who have contributed to this project and about all my other bots.\n\nThis Bot is completely free and Open Source: https://github.com/garboh/pwned_robot"), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_info)
-        elif text == "info_dev":
-            bot.editMessageText(text=_("I'm 20 years old, I'm currently studying IT Engineer at <a href='https://en.wikipedia.org/wiki/University_of_Padua'>UniPD</a>, in Italy. I've developed many Telegram bots and webApps. \n\nI developed this bot to check in a quickly and easily way if an account has been compromised in a data breach."), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, disable_web_page_preview=True, reply_markup=keyboardMarkup_infoback)
+        elif text == "botlang":
+            keyboard_lang = InlineKeyboardMarkup([[InlineKeyboardButton(_("🌐 Translate bot"), url="https://www.transifex.com/hack-and-news/have-i-been-pwned")],[InlineKeyboardButton(_("🔙 Back"), callback_data="settings")]]) 
+            bot.editMessageText(text=_("Right now the bot is only available in English. There are already translators who are perfecting localized versions of the bot.\nIf you want to help us, join the team of translators on Transifex too!"), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboard_lang)
         elif text == "info_thanks":      
-            bot.editMessageText(text=_("Special thanks to haveibeenpwned.com \n\nYou can help us to transale this bot on <a href='https://www.transifex.com/hack-and-news/have-i-been-pwned'>Transifex</a>"), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, disable_web_page_preview=True, reply_markup=keyboardMarkup_infoback)
-        elif text == "info_bots":           
-            bot.editMessageText(text=_("I've developed some other bots, useful and funny:\n🔹 @CiuchinoCalls call it on Telegram voicecall to listen awesome music. \n🔹 @langTLA_bot change the entire Telegram interface into one of the official or minority languages available. \n🔹 @CiuchinoBot Have fun with a stupid AI. Many functions for private chat, groups and supergroups."), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
+            bot.editMessageText(text=_("Special thanks to <a href='https://en.wikipedia.org/wiki/Troy_Hunt'>Troy Hunt</a> (haveibeenpwned.com Owner) who mentioned us on the <a href='https://haveibeenpwned.com/API/Consumers'>official website</a> \n\nAnd thanks also to whoever is working on translating this bot. Yep, you can help us to transale this bot on <a href='https://www.transifex.com/hack-and-news/have-i-been-pwned'>Transifex</a>"), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML, disable_web_page_preview=True, reply_markup=keyboardMarkup_infoback)         
         elif text == "info_donate":
-            bot.editMessageText(text=_("Support the project by donating a coffee\n\n🅿️ paypal.me/garboh"), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
+            bot.editMessageText(text=_("Support this project by donating a coffee\n\n🅿️ Paypal: paypal.me/garboh\n💰 Bitcoin address: <code>37opAEEXUVmH8N3y1qKKEnmVviS6nBwa56</code>"), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup_infoback)
         elif text == "info_feedback":
             #!!! do not translate the /cancel comand
             bot.editMessageText(text=_("Tell what we can improve to make this bot better or /cancel"), chat_id=chat_id, message_id=query.message.message_id,parse_mode=ParseMode.HTML)
@@ -431,15 +434,24 @@ def inline_query(bot, update):
         elif text == "back_start" or text == "back"  :
             strServiceEnabled = getStrService(update.callback_query.message.chat_id)    
             keyboardMarkup = InlineKeyboardMarkup([[InlineKeyboardButton(_("📖 Guide"), callback_data="guide"),InlineKeyboardButton(_("ℹ️ Various info"), callback_data="info")],[InlineKeyboardButton(_("⚙️ Settings"), callback_data="settings")]])
-            bot.editMessageText(text=_("Welcome back {userName}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\nhttps://haveibeenpwned.com\n\n{strServiceEnabled}").format(userName=update.callback_query.from_user.first_name,strServiceEnabled=strServiceEnabled), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup)
+            bot.editMessageText(text=_("Welcome back {userName}! \nWith this Bot you can <b>check if you have an account that has been compromised in a data breach</b>.\nhttps://haveibeenpwned.com\n\n{strServiceEnabled}\n👷‍♂️ You can change the service on the settings").format(userName=update.callback_query.from_user.first_name,strServiceEnabled=strServiceEnabled), chat_id=chat_id, disable_web_page_preview=True, message_id=query.message.message_id,parse_mode=ParseMode.HTML, reply_markup=keyboardMarkup)
         elif args[0] == "breachedInline":
             
             msg = args[1]
             offset = int(args[2])
             
-            
-            with open('./cache/breached/{}.json'.format(update.callback_query.message.chat_id)) as json_file:
-                json_object = json.load(json_file)
+            try:
+                with open('./cache/breached/{}.json'.format(update.callback_query.message.chat_id)) as json_file:
+                    json_object = json.load(json_file)
+            except:
+                customheaders = {'User-Agent': 'Pwnage-Checker-For-Telegram', 'api-version': '3', 'Accept': 'application/vnd.haveibeenpwned.v3+json', 'hibp-api-key': 'your hibp api key'}
+                url = "https://haveibeenpwned.com/api/v3/breachedaccount/{}?truncateResponse=false".format(urllib.parse.quote_plus(msg))
+                r = http.request('GET', url, headers=customheaders)
+                if r.status == 200:
+                    json_object = json.loads(r.data)
+                    json_query = json.dumps(json_object)
+                    with open('./cache/breached/{}.json'.format(update.callback_query.message.chat_id), 'w', encoding='utf-8') as f:
+                        json.dump(json_object, f, ensure_ascii=False, indent=4)
  
             stringAnsw = ""
         
@@ -513,10 +525,19 @@ def inline_query(bot, update):
             msg = args[1]
             offset = int(args[2])
             
-            
-            with open('./cache/paste/{}.json'.format(update.callback_query.message.chat_id)) as json_file:
-                json_object = json.load(json_file)
- 
+            try:
+                with open('./cache/paste/{}.json'.format(update.callback_query.message.chat_id)) as json_file:
+                    json_object = json.load(json_file)
+            except:
+                customheaders = {'User-Agent': 'Pwnage-Checker-For-Telegram', 'api-version': '3', 'Accept': 'application/vnd.haveibeenpwned.v3+json', 'hibp-api-key': 'your hibp api key'}
+                url = "https://haveibeenpwned.com/api/v3/pasteaccount/{}".format(urllib.parse.quote_plus(msg))
+                r = http.request('GET', url, headers=customheaders)
+                if r.status == 200:
+                    json_object = json.loads(r.data)
+                    json_query = json.dumps(json_object)
+                    with open('./cache/paste/{}.json'.format(update.callback_query.message.chat_id), 'w', encoding='utf-8') as f:
+                        json.dump(json_object, f, ensure_ascii=False, indent=4)
+                
             stringAnsw = ""
         
             countRow = 0
@@ -562,7 +583,16 @@ def inline_query(bot, update):
         else:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=True, text="bot is under construction")
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id, show_alert=False)  
-    end()        
+    end()
+    
+@run_async
+def decache(bot, update):
+    files = glob.glob('./cache/paste/*')
+    for f in files:
+        os.remove(f)
+    filess = glob.glob('./cache/breached/*')
+    for z in filess:
+        os.remove(z)
     
 def end():
     db.commit()
@@ -580,12 +610,17 @@ def main():
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
+    j = updater.job_queue
+    
+    # automatically decache at 5 a.m.
+    j.run_daily(decache,datetime.time(5, 0, 1),days=(0, 1, 2, 3, 4, 5, 6))
     
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", guide))
     dp.add_handler(CommandHandler("donate", donate))
     dp.add_handler(CommandHandler("cancel", cancel))
+    dp.add_handler(CommandHandler("decache", decache))
 
     
     # on noncommand i.e message - echo the message on Telegram
