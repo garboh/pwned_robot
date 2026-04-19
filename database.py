@@ -36,6 +36,7 @@ class DatabaseManager:
             echo=settings.DEBUG,
             pool_pre_ping=True,
             pool_recycle=3600,
+            connect_args={"local_infile": False},
         )
         if settings.DEBUG:
             engine_kwargs["poolclass"] = NullPool

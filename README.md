@@ -81,7 +81,7 @@ pwned_robot/
 | Layer | Technology |
 |---|---|
 | Bot framework | python-telegram-bot 21.5 (async) |
-| HTTP client | aiohttp 3.10 |
+| HTTP client | aiohttp 3.11+ |
 | Database | MySQL 5.7+ / MariaDB 10.3+ via SQLAlchemy 2.0 (async) |
 | MySQL driver | aiomysql 0.2 (async) |
 | Cache | Redis — breach results cached for 24 h |
@@ -269,6 +269,8 @@ To add a new language, add a matching key block to `STRINGS` in `strings.py` —
 | Sensitive data | Fernet (AES-128) encryption available for fields at rest |
 | Audit trail | Every sensitive action logged to `audit_logs` |
 | Suspicious activity | Automatic detection and logging of injection attempts |
+| MySQL file-read | `local_infile=False` enforced on all DB connections |
+| Dependency hygiene | Minimum safe version pins for aiohttp, cryptography, requests |
 
 ---
 
