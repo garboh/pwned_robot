@@ -10,5 +10,5 @@ redis==5.2.0
 requests>=2.32.4
 ratelimit==2.2.1
 pycryptodome==3.21.0
-bleach==6.2.0
+bleach==6.4.0
 python-dateutil==2.9.0.post0
